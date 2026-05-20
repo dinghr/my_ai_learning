@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.config import get_settings, get_cors_origins
 from app.database import engine, Base, init_db
 
 # 创建表
 init_db()
+
+settings = get_settings()
 
 app = FastAPI(
     title="AI助学小程序 API",
@@ -11,10 +14,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS
+# CORS - 生产环境只允许特定域名，开发/测试允许所有
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=get_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,9 +42,9 @@ app.include_router(wechat_router)
 
 @app.get("/")
 async def root():
-    return {"message": "AI助学小程序 API", "version": "1.0.0"}
+    return {"message": "AI助学小程序 API", "version": "1.0.0", "env": settings.env}
 
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok"}
+    return {"status": "ok", "env": settings.env}

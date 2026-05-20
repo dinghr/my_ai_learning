@@ -1,7 +1,12 @@
 import Taro from '@tarojs/taro';
 import { getStudentId } from '../utils/auth';
 
-const BASE_URL = 'http://localhost:8000/api';
+// API_URL 由 Taro defineConstants 在编译时注入
+// development: http://localhost:8000/api
+// production:  构建时配置的生产地址
+declare const API_URL: string;
+
+const BASE_URL = API_URL || 'http://localhost:8000/api';
 
 interface RequestOptions {
   url: string;

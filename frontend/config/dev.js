@@ -18,5 +18,9 @@ module.exports = {
         publicPath: '/',
       },
     }
+  },
+  defineConstants: {
+    // 开发环境 API 地址（本地后端）
+    API_URL: '"http://localhost:8000/api"'
   }
 }

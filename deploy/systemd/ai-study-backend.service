@@ -1,0 +1,21 @@
+[Unit]
+Description=AI助学小程序后端服务
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/ai-study/backend
+Environment=ENV=production
+EnvironmentFile=/opt/ai-study/backend/.env.production
+ExecStart=/opt/ai-study/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 2
+Restart=always
+RestartSec=5
+
+# 日志
+StandardOutput=append:/var/log/ai-study/app.log
+StandardError=append:/var/log/ai-study/error.log
+
+[Install]
+WantedBy=multi-user.target
