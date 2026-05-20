@@ -85,9 +85,9 @@ TARO_APP_API_URL=https://api.xxx.com/api npm run build:weapp
 
 ```bash
 # 服务器上
-sudo mkdir -p /opt/ai-study /var/log/ai-study
-cd /opt/ai-study
-git clone https://github.com/dinghr/my_ai_learning.git .
+sudo mkdir -p /var/www/ai-study /var/log/ai-study
+cd /var/www/ai-study
+git clone -b dev https://github.com/dinghr/my_ai_learning.git .
 
 # Python 虚拟环境
 cd backend
@@ -104,7 +104,7 @@ ENV=production python -c "from app.database import init_db; init_db()"
 
 # 日志目录
 sudo mkdir -p /var/log/ai-study
-sudo chown www-data:www-data /var/log/ai-study
+sudo chown deploy:deploy /var/log/ai-study
 
 # Systemd 服务
 sudo cp deploy/systemd/ai-study-backend.service /etc/systemd/system/
@@ -129,8 +129,8 @@ sudo certbot --nginx -d your-domain.com
 # push 到 main 分支会自动触发部署
 
 # 方式二：手动部署
-cd /opt/ai-study
-git pull origin main
+cd /var/www/ai-study
+git pull origin dev
 cd backend
 source venv/bin/activate
 pip install -r requirements.txt
@@ -151,8 +151,8 @@ sudo tail -f /var/log/nginx/ai-study-error.log # Nginx 错误
 
 ```bash
 # 测试环境
-sudo mkdir -p /opt/ai-study-test
-cd /opt/ai-study-test
+sudo mkdir -p /var/www/ai-study-test
+cd /var/www/ai-study-test
 git clone https://github.com/dinghr/my_ai_learning.git .
 # ... 同上，但使用 .env.test 和 8001 端口
 ```
@@ -165,10 +165,9 @@ git clone https://github.com/dinghr/my_ai_learning.git .
 
 | Secret | 说明 |
 |--------|------|
-| `SSH_HOST` | 生产服务器 IP/域名 |
-| `SSH_HOST_TEST` | 测试服务器 IP/域名 |
-| `SSH_USER` | SSH 用户名 |
-| `SSH_PRIVATE_KEY` | SSH 私钥 |
+| `ALIYUN_HOST` | 生产服务器 IP `8.130.161.121` |
+| `ALIYUN_HOST_TEST` | 测试服务器 IP |
+| `ALIYUN_SSH_KEY` | SSH 私钥 |
 | `PROD_API_URL` | 生产 API 地址，`https://api.xxx.com/api` |
 | `TEST_API_URL` | 测试 API 地址，`https://test-api.xxx.com/api` |
 

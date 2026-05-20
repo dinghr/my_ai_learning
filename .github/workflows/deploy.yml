@@ -2,7 +2,7 @@ name: Deploy AI助学小程序
 
 on:
   push:
-    branches: [main, master]
+    branches: [dev]
   workflow_dispatch:
     inputs:
       environment:
@@ -42,16 +42,16 @@ jobs:
           echo "Tests placeholder"
 
       - name: Deploy to server (Production)
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || inputs.environment == 'production'
+        if: github.ref == 'refs/heads/dev' || inputs.environment == 'production'
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.ALIYUN_HOST }}
+          username: deploy
+          key: ${{ secrets.ALIYUN_SSH_KEY }}
           script: |
             set -e
-            cd /opt/ai-study
-            git pull origin main
+            cd /var/www/ai-study
+            git pull origin dev
             cd backend
             source venv/bin/activate
             pip install -r requirements.txt
@@ -64,12 +64,12 @@ jobs:
         if: inputs.environment == 'test'
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST_TEST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.ALIYUN_HOST_TEST }}
+          username: deploy
+          key: ${{ secrets.ALIYUN_SSH_KEY }}
           script: |
             set -e
-            cd /opt/ai-study-test
+            cd /var/www/ai-study-test
             git pull origin dev
             cd backend
             source venv/bin/activate
@@ -96,7 +96,7 @@ jobs:
         run: npm ci
 
       - name: Build H5 (Production)
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/dev'
         working-directory: ./frontend
         env:
           TARO_APP_API_URL: ${{ secrets.PROD_API_URL }}
@@ -113,9 +113,9 @@ jobs:
       # - name: Deploy H5 to server
       #   uses: appleboy/scp-action@v0.1.7
       #   with:
-      #     host: ${{ secrets.SSH_HOST }}
-      #     username: ${{ secrets.SSH_USER }}
-      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     host: ${{ secrets.ALIYUN_HOST }}
+      #     username: deploy
+      #     key: ${{ secrets.ALIYUN_SSH_KEY }}
       #     source: "frontend/dist/*"
-      #     target: "/opt/ai-study/frontend/"
+      #     target: "/var/www/ai-study/frontend/"
       #     strip_components: 2
