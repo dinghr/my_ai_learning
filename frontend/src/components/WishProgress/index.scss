@@ -1,0 +1,78 @@
+@import "../../app.scss";
+
+.wish-progress-bar {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.6));
+  border-radius: var(--radius-lg, 20px);
+  padding: 16px 20px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.wish-progress-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.wish-progress-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wish-icon {
+  font-size: 22px;
+}
+
+.wish-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #3D2B1F;
+}
+
+.wish-remaining {
+  font-size: 12px;
+  color: #B0A080;
+  background: rgba(139, 105, 20, 0.08);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.wish-percentage {
+  font-size: 16px;
+  font-weight: 800;
+  color: #4A7C59;
+}
+
+.wish-progress-track {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.wish-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #D4A574, #FFD700);
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4));
+  }
+}

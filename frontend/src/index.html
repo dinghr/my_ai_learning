@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-touch-fullscreen" content="yes">
+  <meta name="format-detection" content="telephone=no,address=no">
+  <meta name="apple-mobile-web-app-status-bar-style" content="white">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>AI助学</title>
+  <script>
+    // H5环境模拟微信小程序API
+    if (typeof wx === 'undefined') {
+      window.wx = {
+        login: function(options) {
+          setTimeout(function() {
+            if (options.success) options.success({ code: 'h5_dev_code_' + Date.now() });
+            else if (options.complete) options.complete({ code: 'h5_dev_code_' + Date.now() });
+          }, 50);
+        },
+        request: function(options) {
+          var url = options.url;
+          if (url.indexOf('http') !== 0) {
+            url = 'http://localhost:8000/api' + url;
+          }
+          fetch(url, {
+            method: options.method || 'GET',
+            headers: options.header || {},
+            body: options.data ? JSON.stringify(options.data) : undefined
+          }).then(function(r) { return r.json(); }).then(function(data) {
+            if (options.success) options.success({ data: data, statusCode: 200, header: {} });
+          }).catch(function(err) {
+            if (options.fail) options.fail({ errMsg: err.message });
+          });
+        },
+        showToast: function(options) {
+          console.log('[Toast]', options.title);
+        },
+        chooseImage: function(options) {
+          console.log('[chooseImage] H5未实现');
+          if (options.fail) options.fail({ errMsg: 'H5不支持' });
+        },
+        getStorageSync: function(key) {
+          try { return localStorage.getItem(key); } catch(e) { return null; }
+        },
+        setStorageSync: function(key, value) {
+          try { localStorage.setItem(key, value); } catch(e) {}
+        },
+        removeStorageSync: function(key) {
+          try { localStorage.removeItem(key); } catch(e) {}
+        },
+        navigateTo: function(options) {
+          console.log('[navigateTo]', options.url);
+        },
+        redirectTo: function(options) {
+          console.log('[redirectTo]', options.url);
+        },
+        switchTab: function(options) {
+          console.log('[switchTab]', options.url);
+        }
+      };
+    }
+  </script>
+  <script><%= htmlWebpackPlugin.options.script %></script>
+</head>
+<body>
+  <div id="app"></div>
+</body>
+</html>

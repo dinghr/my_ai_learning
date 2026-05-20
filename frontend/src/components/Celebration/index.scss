@@ -1,0 +1,184 @@
+@use "../../app.scss";
+
+.celebration-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.3s ease;
+
+  &.entering,
+  &.showing {
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  &.exiting {
+    background: rgba(0, 0, 0, 0);
+  }
+}
+
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti {
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  top: -20px;
+  animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg) scale(0.5);
+    opacity: 0;
+  }
+}
+
+.dino-celebration {
+  margin-bottom: 40px;
+  opacity: 0;
+  transform: scale(0.3);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  &.entering,
+  &.showing {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &.exiting {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.4s ease;
+  }
+}
+
+.dino-bounce {
+  animation: dino-bounce 0.6s ease-in-out infinite alternate;
+  position: relative;
+}
+
+.dino-emoji {
+  font-size: 120px;
+  display: block;
+  text-align: center;
+}
+
+.dino-sparkles {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 60px;
+  animation: sparkle-float 1s ease-in-out infinite alternate;
+}
+
+.sparkle {
+  font-size: 28px;
+}
+
+@keyframes dino-bounce {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    transform: translateY(-20px) scale(1.05);
+  }
+}
+
+@keyframes sparkle-float {
+  0% {
+    transform: translateX(-50%) rotate(-10deg);
+  }
+  100% {
+    transform: translateX(-50%) rotate(10deg);
+  }
+}
+
+.points-popup {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(60px) scale(0.5);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  &.entering,
+  &.showing {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  &.exiting {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.9);
+    transition: all 0.4s ease;
+  }
+}
+
+.points-glow {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 8px 20px rgba(0, 0, 0, 0.15);
+  animation: points-glow 0.8s ease-in-out infinite alternate;
+  margin-bottom: 16px;
+}
+
+.points-icon {
+  font-size: 32px;
+  margin-bottom: -4px;
+}
+
+.points-value {
+  font-size: 36px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.points-label {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes points-glow {
+  0% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 0 8px 20px rgba(0, 0, 0, 0.15);
+    transform: scale(1);
+  }
+  100% {
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.8), 0 8px 20px rgba(0, 0, 0, 0.15);
+    transform: scale(1.05);
+  }
+}

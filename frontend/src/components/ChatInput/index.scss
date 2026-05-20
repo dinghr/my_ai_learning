@@ -1,0 +1,137 @@
+@use "../../app.scss";
+
+.chat-input-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(212, 165, 116, 0.15);
+}
+
+.input-mode-btn,
+.input-action-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(245, 230, 200, 0.6);
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+
+  &:active {
+    transform: scale(0.9);
+    background: rgba(245, 230, 200, 0.9);
+  }
+}
+
+.mode-icon,
+.action-icon {
+  font-size: 20px;
+}
+
+.text-input-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.text-input {
+  width: 100%;
+  height: 42px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 21px;
+  padding: 0 16px;
+  font-size: 15px;
+  color: #3D2B1F;
+  box-sizing: border-box;
+}
+
+.voice-btn {
+  flex: 1;
+  height: 42px;
+  border-radius: 21px;
+  background: linear-gradient(135deg, #4A7C59, #6B9B7A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+
+  &:active,
+  &.recording {
+    transform: scale(0.98);
+    background: linear-gradient(135deg, #3D6B4C, #5A8A69);
+  }
+}
+
+.voice-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.voice-waves {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.wave {
+  width: 3px;
+  height: 12px;
+  background: #fff;
+  border-radius: 2px;
+  animation: voiceWave 0.6s ease-in-out infinite alternate;
+
+  &:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+}
+
+@keyframes voiceWave {
+  0% {
+    height: 6px;
+  }
+  100% {
+    height: 18px;
+  }
+}
+
+.send-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+
+  &.active {
+    background: linear-gradient(135deg, #4A7C59, #6B9B7A);
+    box-shadow: 0 2px 8px rgba(74, 124, 89, 0.3);
+
+    .send-icon {
+      color: #fff;
+    }
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.send-icon {
+  font-size: 18px;
+  color: #B0A080;
+}

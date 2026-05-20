@@ -1,0 +1,128 @@
+@use "../../app.scss";
+
+.chat-message-wrapper {
+  margin-bottom: 16px;
+}
+
+.chat-message {
+  display: flex;
+  animation: messageAppear 0.3s ease forwards;
+
+  &.user {
+    flex-direction: row-reverse;
+
+    .message-content-wrapper {
+      align-items: flex-end;
+    }
+  }
+
+  &.assistant {
+    flex-direction: row;
+
+    .message-content-wrapper {
+      align-items: flex-start;
+    }
+  }
+}
+
+@keyframes messageAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #F5E6C8, #E8D4B0);
+  border: 2px solid rgba(212, 165, 116, 0.3);
+}
+
+.avatar-icon {
+  font-size: 22px;
+}
+
+.message-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 75%;
+  margin: 0 10px;
+}
+
+.intent-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  border: 1px solid;
+  margin-bottom: 6px;
+  align-self: flex-start;
+
+  Text {
+    font-size: 11px;
+    font-weight: 600;
+  }
+}
+
+.intent-confidence {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.message-image {
+  max-width: 200px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.message-bubble {
+  padding: 12px 16px;
+  border-radius: 18px;
+  position: relative;
+}
+
+.user-bubble {
+  background: linear-gradient(135deg, #4A7C59, #6B9B7A);
+  border-bottom-right-radius: 4px;
+
+  .message-paragraph {
+    color: #fff;
+  }
+}
+
+.ai-bubble {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-bottom-left-radius: 4px;
+
+  .message-paragraph {
+    color: #3D2B1F;
+  }
+}
+
+.message-paragraph {
+  font-size: 14px;
+  line-height: 1.7;
+  display: block;
+  margin-bottom: 4px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.message-bold {
+  font-weight: 700;
+}

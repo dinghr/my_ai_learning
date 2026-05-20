@@ -1,0 +1,110 @@
+@import "../../app.scss";
+
+.index-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #F5E6C8 0%, #FFF8E7 30%, #FFFCF5 100%);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.page-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F5E6C8;
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #8B6914;
+}
+
+.task-scroll {
+  flex: 1;
+  padding: 0 16px;
+}
+
+.task-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+
+.task-tab {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  border-radius: var(--radius-md, 16px);
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(212, 165, 116, 0.2);
+  transition: all 0.2s ease;
+
+  Text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #8B6914;
+  }
+
+  &.active {
+    background: linear-gradient(135deg, #4A7C59, #6B9B7A);
+    border-color: transparent;
+    box-shadow: 0 2px 12px rgba(74, 124, 89, 0.3);
+
+    Text {
+      color: #fff;
+    }
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.task-list {
+  padding-bottom: 8px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #B0A080;
+}
+
+/* 底部愿望进度条固定区域 */
+.wish-progress-container {
+  position: fixed;
+  bottom: calc(56px + env(safe-area-inset-bottom));
+  left: 16px;
+  right: 16px;
+  z-index: 100;
+}
+
+.wish-empty {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.6));
+  border-radius: var(--radius-lg, 20px);
+  padding: 20px;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.wish-empty-text {
+  font-size: 14px;
+  color: #8B6914;
+}

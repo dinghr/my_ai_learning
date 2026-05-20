@@ -1,0 +1,377 @@
+@import "../../app.scss";
+
+.wish-pool-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #F5E6C8 0%, #FFF8E7 40%, #FFFCF5 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.page-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F5E6C8;
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #8B6914;
+}
+
+/* 头部 */
+.wish-header {
+  padding: 24px 20px 16px;
+  background: linear-gradient(135deg, #F5E6C8, #E8D4B0);
+  border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.header-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #3D2B1F;
+}
+
+.header-points {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  padding: 6px 14px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.points-icon {
+  font-size: 14px;
+}
+
+.points-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.header-subtitle {
+  font-size: 13px;
+  color: #8B6914;
+}
+
+/* 滚动区域 */
+.wish-scroll {
+  flex: 1;
+  padding: 16px;
+}
+
+/* 愿望列表 */
+.wish-list {
+  margin-bottom: 16px;
+}
+
+.wish-card {
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: var(--radius-lg, 20px);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.completed {
+    background: rgba(74, 124, 89, 0.1);
+    border-color: rgba(74, 124, 89, 0.3);
+
+    .wish-card-name {
+      text-decoration: line-through;
+      color: #999;
+    }
+  }
+}
+
+.wish-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.wish-card-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wish-card-icon {
+  font-size: 32px;
+}
+
+.wish-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.wish-card-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #3D2B1F;
+  margin-bottom: 2px;
+}
+
+.wish-card-progress {
+  font-size: 12px;
+  color: #8B6914;
+}
+
+.wish-card-status {
+  .status-completed {
+    font-size: 12px;
+    color: #4A7C59;
+    font-weight: 600;
+    background: rgba(74, 124, 89, 0.12);
+    padding: 4px 10px;
+    border-radius: 10px;
+  }
+
+  .status-percent {
+    font-size: 18px;
+    font-weight: 800;
+    color: #4A7C59;
+  }
+}
+
+/* 卡片进度条 */
+.wish-card-bar {
+  margin-bottom: 12px;
+}
+
+.wish-card-track {
+  height: 10px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.wish-card-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #D4A574, #FFD700);
+  border-radius: 5px;
+  transition: width 0.5s ease;
+
+  &.complete {
+    background: linear-gradient(90deg, #4A7C59, #6B9B7A);
+  }
+}
+
+/* 操作按钮 */
+.wish-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-md, 14px);
+  text-align: center;
+  transition: all 0.15s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  Text {
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+.invest-btn {
+  background: linear-gradient(135deg, #4A7C59, #6B9B7A);
+
+  Text {
+    color: #fff;
+  }
+}
+
+.invest-all {
+  background: linear-gradient(135deg, #D4A574, #C4956A);
+}
+
+.complete-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  box-shadow: 0 2px 12px rgba(255, 215, 0, 0.4);
+
+  Text {
+    color: #3D2B1F;
+  }
+}
+
+/* 空状态 */
+.empty-wishes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #B0A080;
+}
+
+/* 添加愿望触发按钮 */
+.add-wish-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-lg, 20px);
+  border: 2px dashed rgba(212, 165, 116, 0.4);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+
+  &:active {
+    background: rgba(255, 255, 255, 0.8);
+    transform: scale(0.98);
+  }
+}
+
+.add-wish-icon {
+  font-size: 24px;
+  font-weight: 300;
+  color: #D4A574;
+}
+
+.add-wish-text {
+  font-size: 14px;
+  color: #8B6914;
+  font-weight: 600;
+}
+
+/* 添加愿望表单 */
+.add-wish-form {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius-lg, 20px);
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.form-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #3D2B1F;
+  margin-bottom: 14px;
+}
+
+.icon-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.icon-option {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.05);
+  transition: all 0.15s ease;
+
+  Text {
+    font-size: 22px;
+  }
+
+  &.selected {
+    background: linear-gradient(135deg, #4A7C59, #6B9B7A);
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(74, 124, 89, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.form-input {
+  width: 100%;
+  height: 48px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius-md, 14px);
+  padding: 0 16px;
+  font-size: 15px;
+  color: #3D2B1F;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+
+  &:focus {
+    border-color: rgba(74, 124, 89, 0.3);
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.form-btn {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: var(--radius-md, 14px);
+  text-align: center;
+  transition: all 0.15s ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  Text {
+    font-size: 15px;
+    font-weight: 700;
+  }
+}
+
+.cancel {
+  background: rgba(0, 0, 0, 0.06);
+
+  Text {
+    color: #999;
+  }
+}
+
+.confirm {
+  background: linear-gradient(135deg, #4A7C59, #6B9B7A);
+
+  Text {
+    color: #fff;
+  }
+}
