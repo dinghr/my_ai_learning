@@ -104,20 +104,25 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Check Node
-        run: node --version
+        run: node --version && npm --version
 
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm install
+        run: |
+          npm install
+          npm ls --depth=0
 
       - name: Build H5
         working-directory: ./frontend
         env:
           TARO_APP_API_URL: ${{ secrets.PROD_API_URL || 'https://8.130.161.121/api' }}
-        run: npm run build:h5
+          SASS_SILENCE_DEPRECATION_WARNINGS: '1'
+        run: |
+          set -o pipefail
+          npm run build:h5 2>&1
 
       # 如需自动部署 H5 到服务器，取消注释下面：
       # - name: Deploy H5 to server
