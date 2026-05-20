@@ -219,6 +219,147 @@ def chat_with_ai(
         }
 
 
+# 识字专用系统提示
+ENRICH_CHARACTER_PROMPT = """你是一个小学语文教育专家。请为给定的汉字提供详细的学习信息。
+
+返回严格的JSON格式：
+{
+  "pinyin": "拼音，带声调",
+  "radical": "偏旁部首说明，如：虫字旁 · 形声字 · 声旁「胡」表音",
+  "words": ["组词1", "组词2"],
+  "example": "一个包含该字的例句，适合小学生",
+  "brainstorm": ["同偏旁字1", "同偏旁字2", "同偏旁字3", "同偏旁字4", "同偏旁字5"]
+}
+
+要求：
+- 组词选常用、简单的，适合小学生
+- 例句生动有趣，不要太长
+- 同偏旁字选常见字
+- 返回严格有效的JSON，不要包含其他文字"""
+
+READING_PASSAGE_PROMPT = """你是一个小学语文教材编写专家。请用以下生字编写一篇适合小学生阅读的短文。
+
+要求：
+1. 文章长度100-150字，语言简单生动
+2. 必须自然融入所有指定的生字
+3. 适合8-10岁孩子阅读
+4. 主题围绕给定的主题
+
+返回严格的JSON格式：
+{
+  "title": "短文标题",
+  "content": [
+    {"hz": "春", "py": "chūn", "highlight": false},
+    {"hz": "天", "py": "tiān", "highlight": false},
+    ...
+  ],
+  "summary": "短文大意，50字以内"
+}
+
+content 中每个字都要标注拼音，指定的生字 highlight 设为 true。
+返回严格有效的JSON，不要包含其他文字。"""
+
+
+def enrich_character(character: str) -> Dict[str, Any]:
+    """用 DeepSeek 补全生字信息（拼音、组词、例句等）。"""
+    if not settings.deepseek_api_key or settings.deepseek_api_key == "sk-demo":
+        # 开发模式：返回基础数据
+        return {
+            "pinyin": "pīn",
+            "radical": "待补充",
+            "words": [f"{character}字"],
+            "example": f"这是一个包含「{character}」字的例句。",
+            "brainstorm": ["待", "补", "充", "字", "例"]
+        }
+    
+    try:
+        response = client.chat.completions.create(
+            model=settings.deepseek_model,
+            messages=[
+                {"role": "system", "content": ENRICH_CHARACTER_PROMPT},
+                {"role": "user", "content": f"请为汉字「{character}」提供学习信息"},
+            ],
+            temperature=0.5,
+            max_tokens=500,
+        )
+        
+        content = response.choices[0].message.content.strip()
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+        
+        data = json.loads(content)
+        return {
+            "pinyin": data.get("pinyin", ""),
+            "radical": data.get("radical", ""),
+            "words": data.get("words", []),
+            "example": data.get("example", ""),
+            "brainstorm": data.get("brainstorm", []),
+        }
+    except Exception as e:
+        print(f"生字补全失败: {e}")
+        return {
+            "pinyin": "",
+            "radical": "",
+            "words": [],
+            "example": "",
+            "brainstorm": [],
+        }
+
+
+def generate_reading_passage(characters: List[Dict[str, Any]], theme: str = "日常") -> Dict[str, Any]:
+    """用 DeepSeek 生成精读短文。"""
+    if not settings.deepseek_api_key or settings.deepseek_api_key == "sk-demo":
+        # 开发模式：返回示例数据
+        char_list = [c["character"] for c in characters[:4]]
+        return {
+            "title": f"{'、'.join(char_list)}的故事",
+            "content": [
+                {"hz": "春", "py": "chūn"}, {"hz": "天", "py": "tiān"}, {"hz": "的", "py": "de"},
+                {"hz": "花", "py": "huā"}, {"hz": "园", "py": "yuán"}, {"hz": "里", "py": "lǐ"}, {"hz": "，", "py": ""},
+                {"hz": char_list[0] if len(char_list) > 0 else "蝴", "py": "hú", "highlight": True},
+                {"hz": char_list[1] if len(char_list) > 1 else "蝶", "py": "dié", "highlight": True},
+                {"hz": "在", "py": "zài"}, {"hz": "花", "py": "huā"}, {"hz": "间", "py": "jiān"},
+                {"hz": "飞", "py": "fēi"}, {"hz": "舞", "py": "wǔ"}, {"hz": "。", "py": ""},
+            ],
+            "summary": "这是一篇关于春天的短文，包含了你最近学习的生字。"
+        }
+    
+    char_info = "\n".join([f"- {c['character']}（{c['pinyin']}），组词：{', '.join(c.get('words', [])[:2])}" for c in characters])
+    
+    try:
+        response = client.chat.completions.create(
+            model=settings.deepseek_model,
+            messages=[
+                {"role": "system", "content": READING_PASSAGE_PROMPT},
+                {"role": "user", "content": f"主题：{theme}\n\n生字列表：\n{char_info}\n\n请编写短文。"},
+            ],
+            temperature=0.7,
+            max_tokens=1500,
+        )
+        
+        content = response.choices[0].message.content.strip()
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+        
+        data = json.loads(content)
+        return {
+            "title": data.get("title", "短文"),
+            "content": data.get("content", []),
+            "summary": data.get("summary", ""),
+        }
+    except Exception as e:
+        print(f"精读生成失败: {e}")
+        return {
+            "title": "生成失败",
+            "content": [{"hz": "请", "py": "qǐng"}, {"hz": "稍", "py": "shāo"}, {"hz": "后", "py": "hòu"}, {"hz": "再", "py": "zài"}, {"hz": "试", "py": "shì"}],
+            "summary": "短文生成遇到了问题，请稍后再试。"
+        }
+
+
 def get_quick_replies(intent: Optional[str] = None) -> List[Dict[str, str]]:
     """根据意图获取快捷回复建议。"""
     defaults = [

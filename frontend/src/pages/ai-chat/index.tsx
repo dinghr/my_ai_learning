@@ -6,6 +6,7 @@ import ChatInput from '../../components/ChatInput';
 import QuickActions from '../../components/QuickActions';
 import { sendChatMessage, getQuickReplies } from '../../api/ai';
 import { ChatMessage, QuickReply } from '../../api/ai';
+import { addCharacter } from '../../api/vocabulary';
 import './index.scss';
 
 const WELCOME_MESSAGE: ChatMessage = {
@@ -33,6 +34,9 @@ export default function AIChat() {
   const [lastIntent, setLastIntent] = useState<string>('');
   const scrollRef = useRef<any>(null);
   const [poemRefreshing, setPoemRefreshing] = useState<Record<string, boolean>>({});
+  const [literacyModalVisible, setLiteracyModalVisible] = useState(false);
+  const [literacyInput, setLiteracyInput] = useState('');
+  const [literacyTags, setLiteracyTags] = useState<string[]>([]);
 
   // 获取快捷回复
   const fetchQuickReplies = useCallback(async (intent?: string) => {
@@ -120,6 +124,57 @@ export default function AIChat() {
 
   const handleQuickAction = (prompt: string) => {
     handleSendMessage(prompt);
+  };
+
+  // 录生字
+  const openLiteracyModal = () => {
+    setLiteracyModalVisible(true);
+    setLiteracyInput('');
+    setLiteracyTags([]);
+  };
+  const closeLiteracyModal = () => {
+    setLiteracyModalVisible(false);
+    setLiteracyInput('');
+    setLiteracyTags([]);
+  };
+  const handleLiteracyInput = (val: string) => {
+    setLiteracyInput(val);
+    const chars = val.split(/\s*/).filter(c => c.trim());
+    setLiteracyTags(chars);
+  };
+  const saveLiteracy = async () => {
+    if (!literacyInput.trim()) return;
+    const chars = literacyInput.split(/\s*/).filter(c => c.trim());
+    if (chars.length === 0) return;
+    closeLiteracyModal();
+    // 显示录入中提示
+    Taro.showToast({ title: `正在录入 ${chars.length} 个字...`, icon: 'loading', duration: 2000 });
+    try {
+      for (const char of chars) {
+        await addCharacter(char);
+      }
+      Taro.showToast({ title: `✅ 已录入 ${chars.length} 个字`, icon: 'success' });
+      // 在聊天中添加系统消息
+      const sysMsg: ChatMessage = {
+        id: `sys-${Date.now()}`,
+        student_id: 'demo-student',
+        role: 'assistant',
+        content: `✅ 已记录 ${chars.length} 个生字：${chars.join('、')}\n\n要去检测一下吗？`,
+        content_type: 'text',
+        session_id: sessionId || '',
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, sysMsg]);
+      scrollToBottom();
+    } catch (err) {
+      Taro.showToast({ title: '录入失败，请重试', icon: 'none' });
+    }
+  };
+  const goToQuiz = () => {
+    Taro.navigateTo({ url: '/pages/literacy-quiz/index' });
+  };
+  const goToReading = () => {
+    Taro.navigateTo({ url: '/pages/literacy-reading/index' });
   };
 
   const handleImagePick = () => {
@@ -243,6 +298,22 @@ export default function AIChat() {
         <View style={{ height: '20px' }} />
       </ScrollView>
 
+      {/* 识字快捷入口 */}
+      <View className="literacy-bar">
+        <View className="literacy-chip" onClick={openLiteracyModal}>
+          <Text className="literacy-icon">📝</Text>
+          <Text className="literacy-label">录生字</Text>
+        </View>
+        <View className="literacy-chip" onClick={goToQuiz}>
+          <Text className="literacy-icon">🎯</Text>
+          <Text className="literacy-label">去检测</Text>
+        </View>
+        <View className="literacy-chip" onClick={goToReading}>
+          <Text className="literacy-icon">📖</Text>
+          <Text className="literacy-label">去精读</Text>
+        </View>
+      </View>
+
       {/* 快捷操作 */}
       <QuickActions actions={quickReplies} onAction={handleQuickAction} />
 
@@ -252,6 +323,39 @@ export default function AIChat() {
         onImagePick={handleImagePick}
         loading={loading}
       />
+      {/* 录生字弹窗 */}
+      {literacyModalVisible && (
+        <View className="literacy-modal" onClick={closeLiteracyModal}>
+          <View className="literacy-sheet" onClick={(e) => e.stopPropagation()}>
+            <Text className="sheet-title">📝 录生字</Text>
+            <Text className="sheet-sub">陪读时遇到不认识的字，随手记下来</Text>
+            <input
+              className="literacy-input"
+              type="text"
+              value={literacyInput}
+              placeholder="输入生字，如：蝴 蝶"
+              maxLength={20}
+              onInput={(e) => handleLiteracyInput(e.detail.value)}
+              autoFocus
+            />
+            {literacyTags.length > 0 && (
+              <View className="literacy-tags">
+                {literacyTags.map((tag, i) => (
+                  <Text key={i} className="literacy-tag">{tag}</Text>
+                ))}
+              </View>
+            )}
+            <View className="sheet-actions">
+              <View className="sheet-btn sheet-btn-cancel" onClick={closeLiteracyModal}>
+                <Text>取消</Text>
+              </View>
+              <View className="sheet-btn sheet-btn-save" onClick={saveLiteracy}>
+                <Text>保存</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 }

@@ -30,6 +30,7 @@ from app.routers.wishes import router as wishes_router, reward_router
 from app.routers.points import router as points_router
 from app.routers.ai_chat import router as ai_chat_router
 from app.routers.wechat import router as wechat_router
+from app.routers.vocabulary import router as vocabulary_router
 
 app.include_router(students_router)
 app.include_router(tasks_router)
@@ -38,6 +39,7 @@ app.include_router(reward_router)
 app.include_router(points_router)
 app.include_router(ai_chat_router)
 app.include_router(wechat_router)
+app.include_router(vocabulary_router)
 
 
 @app.get("/")

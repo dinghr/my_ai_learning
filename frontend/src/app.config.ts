@@ -2,6 +2,8 @@ export default defineAppConfig({
   pages: [
     'pages/index/index',
     'pages/ai-chat/index',
+    'pages/literacy-quiz/index',
+    'pages/literacy-reading/index',
     'pages/profile/index',
     'pages/wish-pool/index',
   ],
