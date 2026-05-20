@@ -112,7 +112,7 @@ jobs:
       - name: Install dependencies
         working-directory: ./frontend
         run: |
-          npm install
+          npm install --legacy-peer-deps
           npm ls --depth=0
 
       - name: Build H5
