@@ -124,13 +124,12 @@ jobs:
           set -o pipefail
           npm run build:h5 2>&1
 
-      # 如需自动部署 H5 到服务器，取消注释下面：
-      # - name: Deploy H5 to server
-      #   uses: appleboy/scp-action@v0.1.7
-      #   with:
-      #     host: ${{ secrets.ALIYUN_HOST }}
-      #     username: deploy
-      #     key: ${{ secrets.ALIYUN_SSH_KEY }}
-      #     source: "frontend/dist/*"
-      #     target: "/var/www/ai-study/frontend/"
-      #     strip_components: 2
+      - name: Deploy H5 to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.ALIYUN_HOST }}
+          username: deploy
+          key: ${{ secrets.ALIYUN_SSH_KEY }}
+          source: "frontend/dist/*"
+          target: "/var/www/ai-study/frontend/"
+          strip_components: 2
