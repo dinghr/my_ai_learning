@@ -1,4 +1,4 @@
-@import "../../app.scss";
+@use "../../app.scss" as *;
 
 .index-page {
   min-height: 100vh;

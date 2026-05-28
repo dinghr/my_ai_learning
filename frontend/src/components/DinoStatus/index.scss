@@ -1,4 +1,4 @@
-@import "../../app.scss";
+@use "../../app.scss" as *;
 
 .dino-status {
   position: relative;
