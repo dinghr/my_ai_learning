@@ -95,3 +95,103 @@ page {
   50% { transform: scale(1.3); }
   100% { transform: scale(1); opacity: 1; }
 }
+
+// ====================
+// H5 TabBar 样式覆盖
+// ====================
+
+/* TabBar 整体容器 */
+taro-tabbar .taro-tabbar__tabbar {
+  background: rgba(253, 246, 233, 0.92) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-top: 1px solid rgba(139, 115, 85, 0.1) !important;
+  box-shadow: 0 -2px 16px rgba(61, 43, 31, 0.06) !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
+}
+
+/* 每个 tab 项 */
+taro-tabbar .taro-tabbar__tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0 2px !important;
+}
+
+/* 隐藏原有图标图片，用 emoji 替代 */
+taro-tabbar .taro-tabbar__icon {
+  display: none !important;
+}
+
+/* 用 ::before 在每个 tab 上显示 emoji 图标 */
+taro-tabbar .taro-tabbar__tab:nth-child(1) .taro-tabbar__icon::before {
+  content: '🏠';
+  font-size: 22px;
+  display: block;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 12px;
+  background: rgba(139, 115, 85, 0.08);
+  margin-bottom: 2px;
+}
+
+taro-tabbar .taro-tabbar__tab:nth-child(2) .taro-tabbar__icon::before {
+  content: '🦕';
+  font-size: 22px;
+  display: block;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 12px;
+  background: rgba(139, 115, 85, 0.08);
+  margin-bottom: 2px;
+}
+
+taro-tabbar .taro-tabbar__tab:nth-child(3) .taro-tabbar__icon::before {
+  content: '👤';
+  font-size: 22px;
+  display: block;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 12px;
+  background: rgba(139, 115, 85, 0.08);
+  margin-bottom: 2px;
+}
+
+/* 选中状态的 emoji 图标 */
+taro-tabbar .taro-tabbar__tab.taro-tabbar__tab--active:nth-child(1) .taro-tabbar__icon::before {
+  content: '🏠';
+  background: linear-gradient(135deg, #B78134, #D4A052) !important;
+  box-shadow: 0 2px 8px rgba(183, 129, 52, 0.3);
+}
+
+taro-tabbar .taro-tabbar__tab.taro-tabbar__tab--active:nth-child(2) .taro-tabbar__icon::before {
+  content: '🦖';
+  background: linear-gradient(135deg, #B78134, #D4A052) !important;
+  box-shadow: 0 2px 8px rgba(183, 129, 52, 0.3);
+}
+
+taro-tabbar .taro-tabbar__tab.taro-tabbar__tab--active:nth-child(3) .taro-tabbar__icon::before {
+  content: '👤';
+  background: linear-gradient(135deg, #B78134, #D4A052) !important;
+  box-shadow: 0 2px 8px rgba(183, 129, 52, 0.3);
+}
+
+/* Tab 文字 */
+taro-tabbar .taro-tabbar__text {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  margin-top: 2px !important;
+}
+
+/* 选中状态文字 */
+taro-tabbar .taro-tabbar__tab.taro-tabbar__tab--active .taro-tabbar__text {
+  color: #B78134 !important;
+  font-weight: 700 !important;
+}

@@ -188,37 +188,12 @@ def submit_reviews(db: Session, student_id: str, results: List[ReviewSubmit]) ->
     return updated
 
 
-def generate_reading(db: Session, student_id: str, character_ids: Optional[List[str]] = None, theme: str = "日常") -> dict:
+def generate_reading(db: Session, student_id: str, character_ids: Optional[List[str]] = None, theme: str = "随机") -> dict:
     """
-    生成精读短文。
-    使用 DeepSeek 生成包含指定生字的短文，并标注拼音。
+    生成经典优美阅读片段。
+    使用 DeepSeek 生成适合二年级阅读的大师名篇片段。
     """
     from app.services.ai import generate_reading_passage
 
-    if character_ids:
-        chars = db.query(Character).filter(
-            Character.id.in_(character_ids),
-            Character.student_id == student_id
-        ).all()
-    else:
-        # 默认取最近不认识的字
-        chars = db.query(Character).filter(
-            Character.student_id == student_id,
-            Character.status.in_(["learning", "new"])
-        ).order_by(Character.wrong_count.desc()).limit(10).all()
-
-    if not chars:
-        return {
-            "title": "暂无生字",
-            "content": [{"hz": "请", "py": "qǐng"}, {"hz": "先", "py": "xiān"}, {"hz": "录", "py": "lù"}, {"hz": "入", "py": "rù"}, {"hz": "生", "py": "shēng"}, {"hz": "字", "py": "zì"}],
-            "summary": "还没有录入生字哦，快去 AI学 页面录几个吧！"
-        }
-
-    char_list = [{
-        "character": c.character,
-        "pinyin": c.pinyin,
-        "words": c.words or [],
-        "example": c.example
-    } for c in chars]
-
-    return generate_reading_passage(char_list, theme)
+    # 不再依赖生字，直接生成经典片段
+    return generate_reading_passage(theme)

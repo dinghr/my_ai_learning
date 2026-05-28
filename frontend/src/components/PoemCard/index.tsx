@@ -3,11 +3,16 @@ import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import './index.scss';
 
+export interface PoemChar {
+  hz: string;
+  py: string;
+}
+
 export interface PoemData {
   title: string;
   author: string;
   dynasty: string;
-  content: string[];
+  content: PoemChar[][];
   explanation: string;
   appreciation: string;
 }
@@ -61,10 +66,19 @@ export default function PoemCard({ poem, onRefresh, onComplete, loading }: PoemC
         <View className="scroll-decoration right" />
       </View>
 
-      {/* 诗句正文 */}
+      {/* 诗句正文 — 田字格 + 拼音 */}
       <View className="poem-content">
-        {poem.content.map((line, idx) => (
-          <Text key={idx} className="poem-line">{line}</Text>
+        {poem.content.map((line, lineIdx) => (
+          <View key={lineIdx} className="poem-line-grid">
+            {line.map((char, charIdx) => (
+              <View key={charIdx} className="tianzighe">
+                <Text className="tzg-py">{char.py}</Text>
+                <View className="tzg-grid">
+                  <View className="tzg-hz">{char.hz}</View>
+                </View>
+              </View>
+            ))}
+          </View>
         ))}
       </View>
 

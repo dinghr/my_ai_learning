@@ -23,6 +23,13 @@
   display: block;
 }
 
+.reading-author {
+  font-size: 13px;
+  color: #8B6914;
+  margin-top: 4px;
+  display: block;
+}
+
 .reading-summary {
   font-size: 13px;
   color: #8B6914;
@@ -104,6 +111,76 @@
   color: #8B6914;
   padding: 8px 0;
   cursor: pointer;
+}
+
+/* 主题选择器 */
+.theme-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.theme-tag {
+  padding: 6px 14px;
+  border-radius: 16px;
+  background: rgba(139, 115, 85, 0.08);
+  border: 1px solid rgba(139, 115, 85, 0.15);
+  cursor: pointer;
+  transition: all 0.2s;
+
+  Text {
+    font-size: 12px;
+    color: #8B7355;
+    font-weight: 500;
+  }
+
+  &.active {
+    background: rgba(183, 129, 52, 0.85);
+    border-color: rgba(183, 129, 52, 0.3);
+
+    Text {
+      color: #FFF8E7;
+      font-weight: 700;
+    }
+  }
+}
+
+/* 好词积累 */
+.highlight-words {
+  background: rgba(255, 248, 231, 0.7);
+  border-radius: 16px;
+  padding: 14px;
+  margin: 12px 0;
+  border: 1px dashed rgba(212, 165, 116, 0.3);
+}
+
+.highlight-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #8B6914;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.highlight-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.highlight-tag {
+  padding: 6px 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(183, 129, 52, 0.12), rgba(212, 165, 116, 0.08));
+  border: 1px solid rgba(183, 129, 52, 0.2);
+
+  Text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8B6914;
+  }
 }
 
 /* 加载/空态 */

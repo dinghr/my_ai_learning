@@ -34,8 +34,10 @@ export interface ReviewResult {
 
 export interface ReadingPassage {
   title: string;
+  author?: string;
   content: { hz: string; py: string; highlight?: boolean }[];
   summary: string;
+  highlight_words?: string[];
 }
 
 const studentId = typeof window !== 'undefined'
@@ -81,10 +83,10 @@ export async function submitQuizResults(results: ReviewResult[]) {
   });
 }
 
-export async function generateReading(characterIds?: string[], theme?: string) {
+export async function generateReading(theme?: string) {
   return request<ReadingPassage>({
     url: `/students/${studentId}/literacy/reading`,
     method: 'POST',
-    data: { character_ids: characterIds, theme },
+    data: { theme },
   });
 }

@@ -46,6 +46,6 @@ def submit_quiz(student_id: str, data: ReviewSubmitBatch, db: Session = Depends(
 
 @router.post("/reading", response_model=ReadingOut)
 def create_reading(student_id: str, data: Optional[ReadingRequest] = None, db: Session = Depends(get_db)):
-    """生成精读短文。"""
+    """生成经典优美阅读片段。"""
     req = data or ReadingRequest()
-    return generate_reading(db, student_id, req.character_ids, req.theme)
+    return generate_reading(db, student_id, theme=req.theme or "随机")

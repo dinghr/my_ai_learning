@@ -55,7 +55,7 @@ CHAT_SYSTEM_PROMPT = """你是"小棘的考古助手"，一个专为小学生设
 
 当前对话中，请先根据用户的意图类型调整回答风格。"""
 
-# 古诗专用系统提示 — 要求返回结构化JSON
+# 古诗专用系统提示 — 要求返回结构化JSON（含拼音）
 POEM_SYSTEM_PROMPT = """你是"小棘的考古助手"，一位热爱诗词的考古学家。请为小学生推荐一首适合的古诗，并以严格的JSON格式返回。
 
 JSON格式要求：
@@ -63,14 +63,17 @@ JSON格式要求：
   "title": "诗题",
   "dynasty": "朝代",
   "author": "作者",
-  "content": ["诗句1", "诗句2", "诗句3", "诗句4"],
+  "content": [
+    [{"hz": "床", "py": "chuáng"}, {"hz": "前", "py": "qián"}, {"hz": "明", "py": "míng"}, {"hz": "月", "py": "yuè"}, {"hz": "光", "py": "guāng"}],
+    [{"hz": "疑", "py": "yí"}, {"hz": "是", "py": "shì"}, {"hz": "地", "py": "dì"}, {"hz": "上", "py": "shàng"}, {"hz": "霜", "py": "shuāng"}]
+  ],
   "explanation": "用孩子的语言解释这首诗的大意，100字以内",
   "appreciation": "简单赏析这首诗好在哪里，80字以内"
 }
 
 要求：
-- 推荐适合8-12岁小学生的经典古诗
-- 优先推荐小学课本中的必背篇目
+- 推荐适合8-12岁小学生的经典古诗（小学必背篇目优先）
+- content 中每个字都要单独标注拼音，注意多音字的正确读音
 - 诗句要完整，不要遗漏
 - 解释和赏析要用孩子的语言，生动有趣
 - 适当融入考古/恐龙相关比喻增加趣味性
@@ -126,7 +129,7 @@ def detect_intent(user_message: str) -> Dict[str, Any]:
 
 
 def generate_poem(user_message: str, history: Optional[List[Dict[str, str]]] = None) -> Dict[str, Any]:
-    """生成古诗推荐，返回结构化数据。"""
+    """生成古诗推荐，返回结构化数据（含拼音）。"""
     logger.info(f"[POEM_GEN] start | message={user_message[:50]}...")
     messages = [{"role": "system", "content": POEM_SYSTEM_PROMPT}]
     
@@ -141,7 +144,7 @@ def generate_poem(user_message: str, history: Optional[List[Dict[str, str]]] = N
             model=settings.deepseek_model,
             messages=messages,
             temperature=0.8,
-            max_tokens=1000,
+            max_tokens=1500,
             stream=False,
         )
         
@@ -161,8 +164,17 @@ def generate_poem(user_message: str, history: Optional[List[Dict[str, str]]] = N
             if field not in poem_data:
                 poem_data[field] = ""
         
-        if isinstance(poem_data["content"], str):
-            poem_data["content"] = poem_data["content"].split("\n")
+        # 兼容旧格式：如果 content 是字符串列表，转换为带拼音的字列表
+        content_val = poem_data.get("content", [])
+        if content_val and isinstance(content_val[0], str):
+            # 旧格式：逐句拆分，给每个字标注基础拼音（简化处理）
+            converted = []
+            for line in content_val:
+                chars = []
+                for c in line:
+                    chars.append({"hz": c, "py": ""})
+                converted.append(chars)
+            poem_data["content"] = converted
         
         return {
             "success": True,
@@ -269,26 +281,29 @@ ENRICH_CHARACTER_PROMPT = """你是一个小学语文教育专家。请为给定
 - 同偏旁字选常见字
 - 返回严格有效的JSON，不要包含其他文字"""
 
-READING_PASSAGE_PROMPT = """你是一个小学语文教材编写专家。请用以下生字编写一篇适合小学生阅读的短文。
+READING_PASSAGE_PROMPT = """你是一位小学语文教育专家，熟悉中国现当代文学经典。请从经典散文、名家名篇中选取或改编一段适合小学生阅读的优美文字。
 
 要求：
-1. 文章长度100-150字，语言简单生动
-2. 必须自然融入所有指定的生字
-3. 适合8-10岁孩子阅读
-4. 主题围绕给定的主题
+1. 文章片段150-250字，语言优美、有画面感、情感真挚
+2. 适合小学二年级阅读水平（常用字为主，生僻字标注拼音）
+3. 内容可以是：朱自清、老舍、冰心、巴金等大师的经典片段；或关于四季、自然、亲情、童趣的优美散文
+4. 让小朋友感受文字之美，积累好词好句
+5. 不要基于"生字"来生成，而是直接给出一段完整的经典优美文字
 
 返回严格的JSON格式：
 {
-  "title": "短文标题",
+  "title": "文章标题",
+  "author": "原作者（如：朱自清）",
   "content": [
-    {"hz": "春", "py": "chūn", "highlight": false},
-    {"hz": "天", "py": "tiān", "highlight": false},
+    {"hz": "春", "py": "chūn"},
+    {"hz": "天", "py": "tiān"},
     ...
   ],
-  "summary": "短文大意，50字以内"
+  "summary": "这段文字大意，50字以内",
+  "highlight_words": ["好词1", "好词2", "好词3"]
 }
 
-content 中每个字都要标注拼音，指定的生字 highlight 设为 true。
+content 中每个字都要标注拼音。highlight_words 列出文中值得积累的优美词语（3-5个）。
 返回严格有效的JSON，不要包含其他文字。"""
 
 
@@ -351,35 +366,38 @@ def enrich_character(character: str) -> Dict[str, Any]:
         }
 
 
-def generate_reading_passage(characters: List[Dict[str, Any]], theme: str = "日常") -> Dict[str, Any]:
-    """用 DeepSeek 生成精读短文。"""
-    logger.info(f"[READING_GEN] start | char_count={len(characters)} | theme={theme}")
+def generate_reading_passage(theme: str = "随机") -> Dict[str, Any]:
+    """用 DeepSeek 生成经典优美阅读片段。"""
+    logger.info(f"[READING_GEN] start | theme={theme}")
     if not settings.deepseek_api_key or settings.deepseek_api_key == "sk-demo":
-        # 开发模式：返回示例数据
-        char_list = [c["character"] for c in characters[:4]]
+        # 开发模式：返回示例数据（朱自清《春》片段）
         return {
-            "title": f"{'、'.join(char_list)}的故事",
+            "title": "春",
+            "author": "朱自清",
             "content": [
-                {"hz": "春", "py": "chūn"}, {"hz": "天", "py": "tiān"}, {"hz": "的", "py": "de"},
-                {"hz": "花", "py": "huā"}, {"hz": "园", "py": "yuán"}, {"hz": "里", "py": "lǐ"}, {"hz": "，", "py": ""},
-                {"hz": char_list[0] if len(char_list) > 0 else "蝴", "py": "hú", "highlight": True},
-                {"hz": char_list[1] if len(char_list) > 1 else "蝶", "py": "dié", "highlight": True},
-                {"hz": "在", "py": "zài"}, {"hz": "花", "py": "huā"}, {"hz": "间", "py": "jiān"},
-                {"hz": "飞", "py": "fēi"}, {"hz": "舞", "py": "wǔ"}, {"hz": "。", "py": ""},
+                {"hz": "桃", "py": "táo"}, {"hz": "树", "py": "shù"}, {"hz": "、", "py": ""},
+                {"hz": "杏", "py": "xìng"}, {"hz": "树", "py": "shù"}, {"hz": "、", "py": ""},
+                {"hz": "梨", "py": "lí"}, {"hz": "树", "py": "shù"}, {"hz": "，", "py": ""},
+                {"hz": "你", "py": "nǐ"}, {"hz": "不", "py": "bù"}, {"hz": "让", "py": "ràng"},
+                {"hz": "我", "py": "wǒ"}, {"hz": "，", "py": ""}, {"hz": "我", "py": "wǒ"},
+                {"hz": "不", "py": "bù"}, {"hz": "让", "py": "ràng"}, {"hz": "你", "py": "nǐ"},
+                {"hz": "，", "py": ""}, {"hz": "都", "py": "dōu"}, {"hz": "开", "py": "kāi"},
+                {"hz": "满", "py": "mǎn"}, {"hz": "了", "py": "le"}, {"hz": "花", "py": "huā"},
+                {"hz": "赶", "py": "gǎn"}, {"hz": "趟", "py": "tàng"}, {"hz": "儿", "py": "er"},
+                {"hz": "。", "py": ""},
             ],
-            "summary": "这是一篇关于春天的短文，包含了你最近学习的生字。"
+            "summary": "朱自清《春》中的经典片段，描写了春天百花盛开的美丽景象。",
+            "highlight_words": ["开满", "赶趟儿"],
         }
-    
-    char_info = "\n".join([f"- {c['character']}（{c['pinyin']}），组词：{', '.join(c.get('words', [])[:2])}" for c in characters])
     
     try:
         response = client.chat.completions.create(
             model=settings.deepseek_model,
             messages=[
                 {"role": "system", "content": READING_PASSAGE_PROMPT},
-                {"role": "user", "content": f"主题：{theme}\n\n生字列表：\n{char_info}\n\n请编写短文。"},
+                {"role": "user", "content": f"请生成一段主题为「{theme}」的优美阅读片段。"},
             ],
-            temperature=0.7,
+            temperature=0.8,
             max_tokens=1500,
         )
         
@@ -393,22 +411,28 @@ def generate_reading_passage(characters: List[Dict[str, Any]], theme: str = "日
         data = json.loads(content)
         return {
             "title": data.get("title", "短文"),
+            "author": data.get("author", ""),
             "content": data.get("content", []),
             "summary": data.get("summary", ""),
+            "highlight_words": data.get("highlight_words", []),
         }
     except APIError as e:
         logger.error(f"[READING_GEN] APIError | status={e.status_code} | code={e.code}")
         return {
             "title": "生成失败",
+            "author": "",
             "content": [{"hz": "请", "py": "qǐng"}, {"hz": "稍", "py": "shāo"}, {"hz": "后", "py": "hòu"}, {"hz": "再", "py": "zài"}, {"hz": "试", "py": "shì"}],
-            "summary": f"短文生成遇到了问题: {e.code}",
+            "summary": f"生成遇到了问题: {e.code}",
+            "highlight_words": [],
         }
     except Exception as e:
         logger.error(f"[READING_GEN] Exception | type={type(e).__name__} | msg={e}")
         return {
             "title": "生成失败",
+            "author": "",
             "content": [{"hz": "请", "py": "qǐng"}, {"hz": "稍", "py": "shāo"}, {"hz": "后", "py": "hòu"}, {"hz": "再", "py": "zài"}, {"hz": "试", "py": "shì"}],
-            "summary": "短文生成遇到了问题，请稍后再试。"
+            "summary": "生成遇到了问题，请稍后再试。",
+            "highlight_words": [],
         }
 
 
