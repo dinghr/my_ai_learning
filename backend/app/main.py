@@ -1,12 +1,22 @@
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings, get_cors_origins
 from app.database import engine, Base, init_db
 
+# 配置日志
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
+    datefmt="%H:%M:%S",
+)
+
 # 创建表
 init_db()
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
+logger.info(f"[STARTUP] env={settings.env} | model={settings.deepseek_model} | api_key_set={bool(settings.deepseek_api_key and settings.deepseek_api_key != 'sk-demo')}")
 
 app = FastAPI(
     title="AI助学小程序 API",

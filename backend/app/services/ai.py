@@ -1,15 +1,18 @@
 import json
+import logging
 from typing import Optional, List, Dict, Any
-from openai import OpenAI
+from openai import OpenAI, APIError
 from app.config import get_settings
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 # DeepSeek client (OpenAI-compatible)
 client = OpenAI(
     api_key=settings.deepseek_api_key or "sk-demo",
     base_url=settings.deepseek_base_url,
 )
+logger.info(f"[AI_INIT] DeepSeek client initialized | model={settings.deepseek_model} | base_url={settings.deepseek_base_url} | api_key_set={bool(settings.deepseek_api_key and settings.deepseek_api_key != 'sk-demo')}")
 
 # 意图识别系统提示
 INTENT_SYSTEM_PROMPT = """你是一个教育AI助手，专门帮助小学生学习。请分析用户输入的意图，并返回JSON格式结果。
@@ -77,6 +80,7 @@ JSON格式要求：
 
 def detect_intent(user_message: str) -> Dict[str, Any]:
     """识别用户意图。"""
+    logger.info(f"[INTENT_DETECT] start | message={user_message[:50]}... | model={settings.deepseek_model}")
     try:
         response = client.chat.completions.create(
             model=settings.deepseek_model,
@@ -89,6 +93,7 @@ def detect_intent(user_message: str) -> Dict[str, Any]:
         )
         
         content = response.choices[0].message.content.strip()
+        logger.info(f"[INTENT_DETECT] raw_response={content[:200]}")
         # 提取JSON部分
         if "```json" in content:
             content = content.split("```json")[1].split("```")[0].strip()
@@ -102,8 +107,16 @@ def detect_intent(user_message: str) -> Dict[str, Any]:
             "explanation": result.get("explanation", ""),
             "suggested_response": result.get("suggested_response", ""),
         }
+    except APIError as e:
+        logger.error(f"[INTENT_DETECT] APIError | status={e.status_code} | code={e.code} | body={e.body}")
+        return {
+            "intent": "chat",
+            "confidence": 50,
+            "explanation": f"API错误: {e.code}",
+            "suggested_response": "你好呀！我是小棘的考古助手，今天想学什么？",
+        }
     except Exception as e:
-        print(f"意图识别失败: {e}")
+        logger.error(f"[INTENT_DETECT] Exception | type={type(e).__name__} | msg={e}")
         return {
             "intent": "chat",
             "confidence": 50,
@@ -114,6 +127,7 @@ def detect_intent(user_message: str) -> Dict[str, Any]:
 
 def generate_poem(user_message: str, history: Optional[List[Dict[str, str]]] = None) -> Dict[str, Any]:
     """生成古诗推荐，返回结构化数据。"""
+    logger.info(f"[POEM_GEN] start | message={user_message[:50]}...")
     messages = [{"role": "system", "content": POEM_SYSTEM_PROMPT}]
     
     if history:
@@ -132,6 +146,7 @@ def generate_poem(user_message: str, history: Optional[List[Dict[str, str]]] = N
         )
         
         content = response.choices[0].message.content.strip()
+        logger.info(f"[POEM_GEN] raw_response={content[:200]}")
         # 提取JSON部分
         if "```json" in content:
             content = content.split("```json")[1].split("```")[0].strip()
@@ -154,8 +169,15 @@ def generate_poem(user_message: str, history: Optional[List[Dict[str, str]]] = N
             "poem": poem_data,
             "text_response": f"来，让我们一起背诵《{poem_data['title']}》！📜\n\n这是{poem_data['dynasty']}·{poem_data['author']}的作品。"
         }
+    except APIError as e:
+        logger.error(f"[POEM_GEN] APIError | status={e.status_code} | code={e.code}")
+        return {
+            "success": False,
+            "poem": None,
+            "text_response": f"哎呀，我的古籍翻页器卡住了 📜\n\nAPI错误: {e.code}",
+        }
     except Exception as e:
-        print(f"古诗生成失败: {e}")
+        logger.error(f"[POEM_GEN] Exception | type={type(e).__name__} | msg={e}")
         return {
             "success": False,
             "poem": None,
@@ -169,6 +191,7 @@ def chat_with_ai(
     intent: Optional[str] = None,
 ) -> Dict[str, Any]:
     """与AI对话，返回回复内容和结构化数据。"""
+    logger.info(f"[CHAT_AI] start | intent={intent} | message={user_message[:50]}... | history_len={len(history) if history else 0}")
     
     # 古诗意图：返回结构化数据
     if intent == "poem":
@@ -205,13 +228,22 @@ def chat_with_ai(
             max_tokens=1500,
             stream=False,
         )
+        content = response.choices[0].message.content.strip()
+        logger.info(f"[CHAT_AI] success | response_len={len(content)}")
         return {
             "success": True,
             "poem": None,
-            "text_response": response.choices[0].message.content.strip()
+            "text_response": content
+        }
+    except APIError as e:
+        logger.error(f"[CHAT_AI] APIError | status={e.status_code} | code={e.code} | body={e.body}")
+        return {
+            "success": False,
+            "poem": None,
+            "text_response": f"哎呀，我的放大镜好像出问题了 🔍\n\nAPI错误: {e.code}\n\n请稍后再试，或者换个问题问我～"
         }
     except Exception as e:
-        print(f"AI对话失败: {e}")
+        logger.error(f"[CHAT_AI] Exception | type={type(e).__name__} | msg={e}")
         return {
             "success": False,
             "poem": None,
@@ -262,6 +294,7 @@ content 中每个字都要标注拼音，指定的生字 highlight 设为 true�
 
 def enrich_character(character: str) -> Dict[str, Any]:
     """用 DeepSeek 补全生字信息（拼音、组词、例句等）。"""
+    logger.info(f"[ENRICH_CHAR] start | character={character}")
     if not settings.deepseek_api_key or settings.deepseek_api_key == "sk-demo":
         # 开发模式：返回基础数据
         return {
@@ -284,6 +317,7 @@ def enrich_character(character: str) -> Dict[str, Any]:
         )
         
         content = response.choices[0].message.content.strip()
+        logger.info(f"[ENRICH_CHAR] raw_response={content[:200]}")
         if "```json" in content:
             content = content.split("```json")[1].split("```")[0].strip()
         elif "```" in content:
@@ -297,8 +331,17 @@ def enrich_character(character: str) -> Dict[str, Any]:
             "example": data.get("example", ""),
             "brainstorm": data.get("brainstorm", []),
         }
+    except APIError as e:
+        logger.error(f"[ENRICH_CHAR] APIError | status={e.status_code} | code={e.code}")
+        return {
+            "pinyin": "",
+            "radical": "",
+            "words": [],
+            "example": "",
+            "brainstorm": [],
+        }
     except Exception as e:
-        print(f"生字补全失败: {e}")
+        logger.error(f"[ENRICH_CHAR] Exception | type={type(e).__name__} | msg={e}")
         return {
             "pinyin": "",
             "radical": "",
@@ -310,6 +353,7 @@ def enrich_character(character: str) -> Dict[str, Any]:
 
 def generate_reading_passage(characters: List[Dict[str, Any]], theme: str = "日常") -> Dict[str, Any]:
     """用 DeepSeek 生成精读短文。"""
+    logger.info(f"[READING_GEN] start | char_count={len(characters)} | theme={theme}")
     if not settings.deepseek_api_key or settings.deepseek_api_key == "sk-demo":
         # 开发模式：返回示例数据
         char_list = [c["character"] for c in characters[:4]]
@@ -340,6 +384,7 @@ def generate_reading_passage(characters: List[Dict[str, Any]], theme: str = "日
         )
         
         content = response.choices[0].message.content.strip()
+        logger.info(f"[READING_GEN] raw_response={content[:200]}")
         if "```json" in content:
             content = content.split("```json")[1].split("```")[0].strip()
         elif "```" in content:
@@ -351,8 +396,15 @@ def generate_reading_passage(characters: List[Dict[str, Any]], theme: str = "日
             "content": data.get("content", []),
             "summary": data.get("summary", ""),
         }
+    except APIError as e:
+        logger.error(f"[READING_GEN] APIError | status={e.status_code} | code={e.code}")
+        return {
+            "title": "生成失败",
+            "content": [{"hz": "请", "py": "qǐng"}, {"hz": "稍", "py": "shāo"}, {"hz": "后", "py": "hòu"}, {"hz": "再", "py": "zài"}, {"hz": "试", "py": "shì"}],
+            "summary": f"短文生成遇到了问题: {e.code}",
+        }
     except Exception as e:
-        print(f"精读生成失败: {e}")
+        logger.error(f"[READING_GEN] Exception | type={type(e).__name__} | msg={e}")
         return {
             "title": "生成失败",
             "content": [{"hz": "请", "py": "qǐng"}, {"hz": "稍", "py": "shāo"}, {"hz": "后", "py": "hòu"}, {"hz": "再", "py": "zài"}, {"hz": "试", "py": "shì"}],
