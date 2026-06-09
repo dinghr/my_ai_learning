@@ -110,7 +110,7 @@ def get_quiz_group(db: Session, student_id: str) -> dict:
             Character.student_id == student_id,
             Character.status == "learning",
             ~Character.id.in_(existing_ids) if existing_ids else True
-        ).order_by(Character.last_review_at).limit(need_more).all()
+        ).order_by(Character.last_reviewed_at).limit(need_more).all()
         chars.extend(learning_chars)
 
     if not chars:

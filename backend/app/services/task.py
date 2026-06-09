@@ -84,14 +84,21 @@ def complete_task(db: Session, student_id: str, task_id: str, data: TaskCompleti
     )
     db.add(completion)
     
-    # 更新学生积分
+    # 更新学生积分（如学生不存在则自动创建）
+    from app.services.student import get_student, create_student
+    student = get_student(db, student_id)
+    if not student:
+        from app.schemas.student import StudentCreate
+        student = create_student(db, StudentCreate(id=student_id, name="小朋友", avatar="🦕"))
+    
     student = update_points(db, student_id, points)
+    balance = student.points_balance if student else points
     
     # 创建积分记录
     points_record = PointsRecord(
         student_id=student_id,
         points=points,
-        balance=student.points_balance,
+        balance=balance,
         source_type="task",
         source_id=completion.id,
         description=f"完成「{db_task.name}」获得 {points} 积分"
