@@ -34,7 +34,14 @@ def get_points_summary(db: Session, student_id: str):
 
 def add_points(db: Session, student_id: str, points: int, source_type: str, 
                source_id: str = None, description: str = None):
-    """手动添加积分（扣分时points为负数）。"""
+    """手动添加积分（扣分时points为负数）。如学生不存在则自动创建。"""
+    from app.services.student import get_student, create_student
+    from app.schemas.student import StudentCreate
+    
+    student = get_student(db, student_id)
+    if not student:
+        student = create_student(db, StudentCreate(id=student_id, name="小朋友", avatar="🦕"))
+    
     student = update_points(db, student_id, points)
     if not student:
         return None

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.student import StudentCreate, StudentUpdate, StudentOut
@@ -8,11 +8,15 @@ router = APIRouter(prefix="/api/students", tags=["students"])
 
 
 @router.get("/current", response_model=StudentOut)
-def get_current_student(db: Session = Depends(get_db)):
-    """获取当前学生（个人使用，返回第一个学生）。"""
-    student = db.query(get_student.__wrapped__.model if hasattr(get_student, '__wrapped__') else None)
-    # 直接查询
+def get_current_student(request: Request, db: Session = Depends(get_db)):
+    """获取当前学生（从请求头中识别）。"""
     from app.models.student import Student as StudentModel
+    student_id = request.headers.get("X-Student-Id")
+    if student_id:
+        student = db.query(StudentModel).filter(StudentModel.id == student_id).first()
+        if student:
+            return student
+    # fallback: 返回第一个学生
     student = db.query(StudentModel).first()
     if not student:
         raise HTTPException(status_code=404, detail="还没有学生，请先创建")

@@ -13,7 +13,8 @@ class StudentBase(BaseModel):
 
 
 class StudentCreate(StudentBase):
-    pass
+    id: Optional[str] = None
+    openid: Optional[str] = None
 
 
 class StudentUpdate(BaseModel):
