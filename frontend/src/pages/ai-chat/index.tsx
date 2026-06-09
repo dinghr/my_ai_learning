@@ -21,9 +21,6 @@ const WELCOME_MESSAGE: ChatMessage = {
 
 const DEFAULT_QUICK_REPLIES: QuickReply[] = [
   { label: '背古诗', icon: '📜', prompt: '教我背一首古诗' },
-  { label: '数学题', icon: '🔢', prompt: '出一道二年级的数学题' },
-  { label: '讲故事', icon: '📖', prompt: '讲一个恐龙的故事' },
-  { label: '为什么', icon: '❓', prompt: '为什么天空是蓝色的？' },
 ];
 
 export default function AIChat() {

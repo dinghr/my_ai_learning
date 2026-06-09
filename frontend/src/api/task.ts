@@ -49,3 +49,22 @@ export function getDailyProgress() {
     url: getUrl('/tasks/progress/daily'),
   });
 }
+
+export interface TaskCreateData {
+  name: string;
+  description?: string;
+  icon?: string;
+  task_type: 'daily' | 'long_term';
+  category?: string;
+  points?: number;
+  target_value?: number;
+  unit?: string;
+}
+
+export function createTask(data: TaskCreateData) {
+  return request<Task>({
+    url: getUrl('/tasks'),
+    method: 'POST',
+    data,
+  });
+}
