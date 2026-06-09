@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, ScrollView } from '@tarojs/components';
+import { View, Text, ScrollView, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import ChatMessageBubble from '../../components/ChatMessage';
 import ChatInput from '../../components/ChatInput';
@@ -326,14 +326,14 @@ export default function AIChat() {
           <View className="literacy-sheet" onClick={(e) => e.stopPropagation()}>
             <Text className="sheet-title">📝 录生字</Text>
             <Text className="sheet-sub">陪读时遇到不认识的字，随手记下来</Text>
-            <input
+            <Input
               className="literacy-input"
               type="text"
               value={literacyInput}
               placeholder="输入生字，如：蝴 蝶"
               maxLength={20}
               onInput={(e) => handleLiteracyInput(e.detail.value)}
-              autoFocus
+              focus
             />
             {literacyTags.length > 0 && (
               <View className="literacy-tags">

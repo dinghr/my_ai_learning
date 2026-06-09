@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView } from '@tarojs/components';
+import { View, Text, ScrollView, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import DinoStatus from '../../components/DinoStatus';
 import TaskCard from '../../components/TaskCard';
@@ -221,7 +221,7 @@ export default function Index() {
 
             <View className="form-row">
               <Text className="form-label">任务名称</Text>
-              <input
+              <Input
                 className="form-input"
                 type="text"
                 placeholder="如：背诵古诗、跳绳100下"
@@ -264,14 +264,14 @@ export default function Index() {
               <View className="form-row">
                 <Text className="form-label">目标值</Text>
                 <View className="target-row">
-                  <input
+                  <Input
                     className="form-input target-input"
                     type="number"
                     placeholder="如：30"
-                    value={newTask.target_value || ''}
+                    value={String(newTask.target_value || '')}
                     onInput={(e) => setNewTask({ ...newTask, target_value: Number(e.detail.value) || undefined })}
                   />
-                  <input
+                  <Input
                     className="form-input unit-input"
                     type="text"
                     placeholder="单位：天/次/页"
