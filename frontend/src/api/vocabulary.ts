@@ -1,4 +1,5 @@
 import { request } from './request';
+import { getStudentId } from '../utils/auth';
 
 export interface Character {
   id: string;
@@ -40,9 +41,7 @@ export interface ReadingPassage {
   highlight_words?: string[];
 }
 
-const studentId = typeof window !== 'undefined'
-  ? (localStorage.getItem('student_id') || 'demo-student')
-  : 'demo-student';
+const studentId = getStudentId() || 'demo-student';
 
 export async function addCharacter(character: string) {
   return request<Character>({
